@@ -1,0 +1,4 @@
+version: "3.8"
+services:
+  zadanie1-wymaganie-5:
+    image: zadanie-1:wymaganie-3
