@@ -1,13 +1,24 @@
-FROM ubuntu:22.04
+FROM zadanie-1:wymaganie-2
 
 WORKDIR /tmp
 
-RUN apt update && \
-	apt install openjdk-8-jdk wget unzip -y && \
-	wget https://github.com/JetBrains/kotlin/releases/download/v1.9.23/kotlin-compiler-1.9.23.zip && \
-	unzip ./kotlin-compiler-1.9.23.zip -d /usr/local/bin && \
+RUN wget https://services.gradle.org/distributions/gradle-8.7-bin.zip && \
+	mkdir /opt/gradle && \
+	unzip -d /usr/local/bin/gradle gradle-8.7-bin.zip && \
 	rm -rf /tmp/*
 	
-ENV PATH=$PATH:/usr/local/bin/kotlinc/bin
+ENV PATH=$PATH:/usr/local/bin/gradle/gradle-8.7/bin
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH=$PATH:$JAVA_HOME/bin
 
-CMD java -version && kotlinc -version
+WORKDIR /home
+
+COPY ./gradle-project ./gradle-project
+
+RUN	cd ./gradle-project && \
+	gradle check && \
+	gradle build
+
+WORKDIR /home/gradle-project
+
+CMD gradle run
