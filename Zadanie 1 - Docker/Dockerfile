@@ -1,14 +1,13 @@
-FROM ubuntu
+FROM ubuntu:22.04
 
-ENV TZ=Europe/Warsaw
+WORKDIR /tmp
 
-RUN apt update -y && \
-	apt install tzdata -y && \
-	ln -fs /usr/share/zoneinfo/Europe/Warsaw /etc/localtime && \
-	dpkg-reconfigure -f noninteractive tzdata && \
-	apt-get install software-properties-common -y && \
-	add-apt-repository ppa:deadsnakes/ppa -y && \
-	apt update -y && \
-	apt install python3.8 -y
+RUN apt update && \
+	apt install openjdk-8-jdk wget unzip -y && \
+	wget https://github.com/JetBrains/kotlin/releases/download/v1.9.23/kotlin-compiler-1.9.23.zip && \
+	unzip ./kotlin-compiler-1.9.23.zip -d /usr/local/bin && \
+	rm -rf /tmp/*
 	
-CMD python3.8 -V
+ENV PATH=$PATH:/usr/local/bin/kotlinc/bin
+
+CMD java -version && kotlinc -version
