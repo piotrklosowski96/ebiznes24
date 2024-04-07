@@ -1,0 +1,3865 @@
+{
+	"info": {
+		"_postman_id": "17ba8bc1-7e53-4ec3-8b82-9ac8c540a6bf",
+		"name": "Zadanie 2 - Scala",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15005723"
+	},
+	"item": [
+		{
+			"name": "ProductsControllerTests",
+			"item": [
+				{
+					"name": "When no products are added yet, expect '200 OK' response with empty array in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect empty products array in response body\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.eql([]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When some products are already added, expect '200 OK' response with products array in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect products array to be not empty\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.length.gt(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect products array to contain products created in pre-request script\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var validProductIds = pm.variables.get(\"productsIds\");\r",
+									"\r",
+									"    actualProductIds = jsonData.map(product => product['id']);\r",
+									"    for (productId of validProductIds) {\r",
+									"        pm.expect(actualProductIds).to.contains(productId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var productsIds = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id)\r",
+									"    pm.variables.set(\"productsIds\", productsIds);\r",
+									"})();\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create product with empty 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field minimum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.minLength\": \"ArraySeq(1)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create product with too long 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field maximum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.maxLength\": \"ArraySeq(255)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=1000)', utils.getRandomString(1000));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=1000)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create product with valid name and no description, expect '200 OK' response with created product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'id' field of UUID type\", function() {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['id']).to.have\r",
+									"    pm.expect(utils.isValidUUID(responseBody['id'])).to.be.equal(true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=127)', utils.getRandomString(127));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=127)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create product with valid name and description, expect '200 OK'  response with created product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'id' field of UUID type\", function() {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['id']).to.have\r",
+									"    pm.expect(utils.isValidUUID(responseBody['id'])).to.be.equal(true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'description' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['description']).to.be.equal(requestBody['description']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=127)', utils.getRandomString(127));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=127)}}\",\r\n    \"description\": \"{{randomString(len=127)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get product that does not exist, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.contain({\"message\": `product (id: '${productId}') does not exist`})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get product that does exist, expect '200 OK' response with product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'name' passed in pre-request script\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(\"example-product-name\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain 'description' passed in pre-request script\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['description']).to.be.equal(\"example-product-description\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let productId = (await utils.createNewProduct(pm, \"example-product-name\", \"example-product-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: productId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update product that does not exist, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.contain({\"message\": `product (id: '${productId}') does not exist`})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing product with empty 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field minimum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.minLength\": \"ArraySeq(1)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let productId = (await utils.createNewProduct(pm, \"example-product-name\", \"example-product-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: productId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing product with too long 'description', expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect status code equal '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field maximum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.maxLength\": \"ArraySeq(255)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let productId = (await utils.createNewProduct(pm, \"example-product-name\", \"example-product-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: productId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=1000)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing product, expect '200 OK' response with updated product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain updated 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned product object to contain updated 'description' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    console.log(requestBody)\r",
+									"\r",
+									"    pm.expect(responseBody['description']).to.be.equal(requestBody['description']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let productId = (await utils.createNewProduct(pm, \"example-product-name\", \"example-product-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: productId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"updated-product-name\",\r\n    \"description\": \"updated-product-description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete product that does not exist, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete product that exists, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect trying to get deleted product returns status code '404 Not Found'\", function() {\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.variables.get('baseUrl')}/products/${pm.variables.get('productId')}`,\r",
+									"        method: 'GET'\r",
+									"    }, function (err, response) {\r",
+									"        pm.expect(response).to.have.status(404);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let productId = (await utils.createNewProduct(pm, \"example-product-name\", \"example-product-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: productId});\r",
+									"    pm.variables.set('productId', productId);\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CategoriesControllerTests",
+			"item": [
+				{
+					"name": "When no categories are added yet, expect '200 OK' response with empty array in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect empty categories array\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.eql([]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When some categories are already added, expect '200 OK' response with products array in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect products array to be not empty\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(jsonData).to.length.gt(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect categories array to contain categories created in pre-request script\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var validCategoriesIDs = pm.variables.get(\"categoriesIds\");\r",
+									"\r",
+									"    actualCategoriesIds = jsonData.map(product => product['id']);\r",
+									"    for (categoryId of validCategoriesIDs) {\r",
+									"        pm.expect(actualCategoriesIds).to.contains(categoryId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var categoriesIds = await utils.times(5, async _ => (await utils.createNewCategory(pm, \"category-example-name\", \"category-example-description\")).id)\r",
+									"    pm.variables.set(\"categoriesIds\", categoriesIds);\r",
+									"})();\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create category with empty 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect status code equal '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field minimum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.minLength\": \"ArraySeq(1)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create category with too long 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field maximum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.maxLength\": \"ArraySeq(255)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=1000)', utils.getRandomString(1000));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=1000)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create category with valid name and no description, expect '200 OK' response with created product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'id' field of UUID type\", function() {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['id']).to.have\r",
+									"    pm.expect(utils.isValidUUID(responseBody['id'])).to.be.equal(true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=127)', utils.getRandomString(127));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=127)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create category with valid name and description, expect '200 OK'  response with created product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'id' field of UUID type\", function() {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['id']).to.have\r",
+									"    pm.expect(utils.isValidUUID(responseBody['id'])).to.be.equal(true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'description' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['description']).to.be.equal(requestBody['description']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=127)', utils.getRandomString(127));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=127)}}\",\r\n    \"description\": \"{{randomString(len=127)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get category that does not exist, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.contain({\"message\": `category (id: '${productId}') does not exist`})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get category that does exist, expect '200 OK' response with product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'name' passed in pre-request script\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(\"example-category-name\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'description' passed in pre-request script\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['description']).to.be.equal(\"example-category-description\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let categoryId = (await utils.createNewCategory(pm, \"example-category-name\", \"example-category-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"categoryId\", value: categoryId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update category that does not exist, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.contain({\"message\": `category (id: '${productId}') does not exist`})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing category with empty 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field minimum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.minLength\": \"ArraySeq(1)\"})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let categoryId = (await utils.createNewCategory(pm, \"example-category-name\", \"example-category-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"categoryId\", value: categoryId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing category with too long 'description', expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field maximum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.maxLength\": \"ArraySeq(255)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let categoryId = (await utils.createNewCategory(pm, \"example-category-name\", \"example-category-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"categoryId\", value: categoryId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=1000)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing category, expect '200 OK' response with updated product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain updated 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain updated 'description' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    console.log(requestBody)\r",
+									"\r",
+									"    pm.expect(responseBody['description']).to.be.equal(requestBody['description']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let categoryId = (await utils.createNewCategory(pm, \"example-category-name\", \"example-category-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"categoryId\", value: categoryId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"updated-category-name\",\r\n    \"description\": \"updated-category-description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete category that does not exist, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete category that exists, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect trying to get deleted category returns status code '404 Not Found'\", function() {\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.variables.get('baseUrl')}/categories/${pm.variables.get('categoryId')}`,\r",
+									"        method: 'GET'\r",
+									"    }, function (err, response) {\r",
+									"        pm.expect(response).to.have.status(404);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let categoryId = (await utils.createNewCategory(pm, \"example-category-name\", \"example-category-description\")).id;\r",
+									"    pm.request.url.variables.upsert({key: \"categoryId\", value: categoryId});\r",
+									"    pm.variables.set('categoryId', categoryId);\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:categoryId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								":categoryId"
+							],
+							"variable": [
+								{
+									"key": "categoryId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CartsControllerTests",
+			"item": [
+				{
+					"name": "When no carts are added yet, expect '200 OK' response with empty array in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect empty carts array\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.eql([]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When some carts are already added, expect '200 OK' response with carts array in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {",
+									"    pm.expect(pm.response).to.have.status(200);",
+									"})",
+									"",
+									"pm.test('Expect carts array to be not empty', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.length.gt(0);",
+									"})",
+									"",
+									"pm.test('Expect carts created in pre-request script are present in response array', function () {",
+									"    var jsonData = pm.response.json().map(cart => cart['id']);",
+									"    var cartId1 = pm.variables.get('cartId1');",
+									"    var cartId2 = pm.variables.get('cartId2');",
+									"    pm.expect(jsonData).to.contains(cartId1);",
+									"    pm.expect(jsonData).to.contains(cartId2);",
+									"})",
+									"",
+									"pm.test(\"Expect carts products arrays to contain all expected products created in pre-request script\", function () {",
+									"    var jsonData = pm.response.json();",
+									"",
+									"    var cartId1 = pm.variables.get(\"cartId1\");",
+									"    var productIds1 = pm.variables.get(\"productsIds1\");",
+									"    console.log(productIds1)",
+									"",
+									"    var cart1 = jsonData.find(cart => cart['id'] === cartId1);",
+									"    for (var productId of productIds1) {",
+									"        pm.expect(cart1['products']).to.include(productId);",
+									"    }",
+									"",
+									"    var cartId2 = pm.variables.get(\"cartId2\");",
+									"    var productIds2 = pm.variables.get(\"productsIds2\");",
+									"    var cart2 = jsonData.find(cart => cart['id'] === cartId2);",
+									"    for (var productId of productIds2) {",
+									"        pm.expect(cart2['products']).to.include(productId);",
+									"    }",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var productsIds1 = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id);\r",
+									"    var cartId1 = (await utils.createNewCart(pm, utils.getRandomString(127), productsIds1)).id;\r",
+									"    \r",
+									"    var productsIds2 = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id);\r",
+									"    var cartId2 = (await utils.createNewCart(pm, utils.getRandomString(127), productsIds2)).id;\r",
+									"\r",
+									"    pm.variables.set(\"productsIds1\", productsIds1);\r",
+									"    pm.variables.set(\"cartId1\", cartId1);\r",
+									"    pm.variables.set(\"productsIds2\", productsIds2);\r",
+									"    pm.variables.set(\"cartId2\", cartId2);\r",
+									"})()\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create cart with empty 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field minimum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.minLength\": \"ArraySeq(1)\"})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create cart with too long 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field maximum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.maxLength\": \"ArraySeq(255)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=1000)', utils.getRandomString(1000));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=1000)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create cart with valid name and empty products list, expect '200 OK' response with created cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned cart object to contain 'id' field of UUID type\", function() {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['id']).to.have\r",
+									"    pm.expect(utils.isValidUUID(responseBody['id'])).to.be.equal(true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned cart object to contain 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned cart object to contain empty 'products' list\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['products']).to.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=127)', utils.getRandomString(127));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=127)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to create cart with valid name and product list with not existing products, expect '404 Not Found'  response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'productIds' field with missing product IDs list\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    for (requestedProductId of requestBody['products']) {\r",
+									"        pm.expect(responseBody['productIds']).to.contain(requestedProductId);\r",
+									"    } \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('randomString(len=127)', utils.getRandomString(127));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=127)}}\",\r\n    \"products\": [\r\n        \"{{$randomUUID}}\",\r\n        \"{{$randomUUID}}\",\r\n        \"{{$randomUUID}}\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get cart that does not exist, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.contain({\"message\": `cart (id: '${productId}') does not exist`})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get cart that does exist, expect '200 OK' response with product in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain 'name' passed in pre-request script\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(\"cart-example-name\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var productIds = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id);\r",
+									"    var cartId = (await utils.createNewCart(pm, \"cart-example-name\", productIds)).id;\r",
+									"\r",
+									"    pm.variables.set(\"productIds\", productIds);\r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cartId});\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update cart that does not exist, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.contain({\"message\": `cart (id: '${productId}') does not exist`})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing cart with empty 'name' field value, expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field minimum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.minLength\": \"ArraySeq(1)\"})\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewProduct() {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/products`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-product-name\",\r",
+									"                    \"description\": \"example-product-description\", \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validProductUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var productIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        productIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"    var cartId = await createNewCart(productIds);\r",
+									"\r",
+									"    pm.variables.set(\"validProductIds\", productIds);\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing cart with too long 'name', expect '400 Bad Request' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect status code equal '400 Bad Request'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'name' field maximum length error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData['/name'][0]).to.contain({\"error.maxLength\": \"ArraySeq(255)\"});\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewProduct() {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/products`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-product-name\",\r",
+									"                    \"description\": \"example-product-description\", \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validProductUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var productIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        productIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"    var cartId = await createNewCart(productIds);\r",
+									"\r",
+									"    pm.variables.set(\"validProductIds\", productIds);\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{randomString(len=1000)}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing cart with valid name, expect '200 OK' response with updated cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain updated 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['name']).to.be.equal(requestBody['name']);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewProduct() {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/products`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-product-name\",\r",
+									"                    \"description\": \"example-product-description\", \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validProductUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var productIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        productIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"    var cartId = await createNewCart(productIds);\r",
+									"\r",
+									"    pm.variables.set(\"validProductIds\", productIds);\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"updated-cart-name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing cart with empty products list, expect '200 OK' response with updated cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned category object to contain updated 'name' passed in request\", function () {\r",
+									"    var requestBody = JSON.parse(pm.request.body.raw)\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody['products']).to.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewProduct() {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/products`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-product-name\",\r",
+									"                    \"description\": \"example-product-description\", \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validProductUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var productIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        productIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"    var cartId = await createNewCart(productIds);\r",
+									"\r",
+									"    pm.variables.set(\"validProductIds\", productIds);\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"products\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing cart with existing products list, expect '200 OK' response with updated cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned cart object to contain updated products passed in request\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    var updateProductIds = pm.variables.get('updateProductIds');\r",
+									"        console.log(\"responseBody['products'] = \", responseBody['products'])\r",
+									"\r",
+									"    for (var updatedProductId of updateProductIds) {\r",
+									"        console.log(\"updatedProductId = \", updatedProductId)\r",
+									"        pm.expect(responseBody['products']).to.contain(updatedProductId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewProduct() {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/products`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-product-name\",\r",
+									"                    \"description\": \"example-product-description\", \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validProductUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var productIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        productIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"    var cartId = await createNewCart(productIds);\r",
+									"\r",
+									"    var updateProductIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        updateProductIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"\r",
+									"    pm.variables.set(\"validProductIds\", productIds);\r",
+									"    pm.variables.set(\"updateProductIds\", updateProductIds);\r",
+									"    pm.variables.set(\"updateProductIdsString\", JSON.stringify(updateProductIds));\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"products\": {{updateProductIdsString}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update existing cart with not existing products list, expect '404 Not Found' response with updated cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewProduct() {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/products`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-product-name\",\r",
+									"                    \"description\": \"example-product-description\", \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validProductUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var productIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        productIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"    var cartId = await createNewCart(productIds);\r",
+									"\r",
+									"    var updateProductIds = []\r",
+									"    for (var i = 0; i < 5; i++) {\r",
+									"        updateProductIds[i] = await createNewProduct();\r",
+									"    }\r",
+									"\r",
+									"    pm.variables.set(\"validProductIds\", productIds);\r",
+									"    pm.variables.set(\"updateProductIds\", updateProductIds);\r",
+									"    pm.variables.set(\"updateProductIdsString\", JSON.stringify(updateProductIds));\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"products\": [\r\n        \"{{$randomUUID}}\",\r\n        \"{{$randomUUID}}\",\r\n        \"{{$randomUUID}}\",\r\n        \"{{$randomUUID}}\",\r\n        \"{{$randomUUID}}\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete carts that does not exist, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{$randomUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete cart that exists, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect trying to get deleted cart returns status code '404 Not Found'\", function() {\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.variables.get('baseUrl')}/carts/${pm.variables.get('validCartId')}`,\r",
+									"        method: 'GET'\r",
+									"    }, function (err, response) {\r",
+									"        pm.expect(response).to.have.status(404);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"async function createNewCart(productIds) {\r",
+									"    return new Promise((resolve, reject) => {\r",
+									"        pm.sendRequest({\r",
+									"            url: `${pm.variables.get('baseUrl')}/carts`,\r",
+									"            method: 'POST',\r",
+									"            body: {\r",
+									"                mode: 'raw',\r",
+									"                raw: JSON.stringify({\r",
+									"                    \"name\": \"example-cart-name\",\r",
+									"                    \"products\": productIds, \r",
+									"                })\r",
+									"            },\r",
+									"            header: {\r",
+									"                'Content-Type': 'application/json'\r",
+									"            }\r",
+									"        }, (err, response) => {\r",
+									"            if (err) {\r",
+									"                return reject(err);\r",
+									"            }\r",
+									"\r",
+									"            return resolve(response);\r",
+									"        })\r",
+									"    }).then((response) => {\r",
+									"        var responseBody = response.json();\r",
+									"        pm.expect(responseBody['id']).to.not.be.equal(null);\r",
+									"        pm.expect(RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(responseBody['id'])).to.be.equal(true);\r",
+									"\r",
+									"        pm.variables.set(\"validCategoryUUID\", responseBody['id']);\r",
+									"        return responseBody['id'];\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"(async () => {\r",
+									"    var cartId = await createNewCart([]);\r",
+									"    pm.variables.set(\"validCartId\", cartId);\r",
+									"})();\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/carts/{{validCartId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								"{{validCartId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to add new valid product to existing cart, expect '200 OK' response status code with updated cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let product = await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127));\r",
+									"    let cart = await utils.createNewCart(pm, utils.getRandomString(127), []);\r",
+									"\r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cart.id});\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: product.id});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": ""
+								},
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to add new not existing product to existing cart, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var productId = pm.request.url.path.pop();\r",
+									"\r",
+									"    pm.expect(responseBody['message']).to.contain(`product (id: '${productId}') does not exist`)\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    let cart = await utils.createNewCart(pm, utils.getRandomString(127), []);\r",
+									"\r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cart.id});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products",
+								"{{$randomUUID}}"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get products in existing cart, expect '200 OK' response with products ids in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect returned cart object to contain list of product ids from pre-request script\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var productsIds = pm.variables.get(\"productsIds\");\r",
+									"\r",
+									"    for (var productId of productsIds) {\r",
+									"        pm.expect(responseBody).to.contains(productId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var productsIds = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id)\r",
+									"    var cartId = (await utils.createNewCart(pm, utils.getRandomString(127), productsIds)).id;\r",
+									"    \r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cartId});\r",
+									"    pm.variables.set(\"productsIds\", productsIds);\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to get products in not existing cart, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var cartId = pm.request.url.path[3];\r",
+									"\r",
+									"    pm.expect(responseBody['message']).to.contain(`cart (id: '${cartId}') does not exist`)\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update products in not existing cart, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var cartId = pm.request.url.path[3];\r",
+									"\r",
+									"    pm.expect(responseBody['message']).to.contain(`cart (id: '${cartId}') does not exist`)\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update products in existing cart with not existing products, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var cartId = pm.request.url.path[3];\r",
+									"\r",
+									"    pm.expect(responseBody['message']).to.contain(`cart (id: '${cartId}') does not exist`)\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \"{{$randomUUID}}\",\r\n    \"{{$randomUUID}}\",\r\n    \"{{$randomUUID}}\",\r\n    \"{{$randomUUID}}\",\r\n    \"{{$randomUUID}}\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to update products in existing cart with existing products, expect '200 OK' response with updated cart in response body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '200 OK'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect all products IDs from pre-request script are present in cart 'products' field\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var updateProductsIds = pm.variables.get('updateProductsIds');\r",
+									"\r",
+									"    for (let updateProductId of updateProductsIds) {\r",
+									"        pm.expect(responseBody['products']).to.contain(updateProductId);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var productsIds = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id);\r",
+									"    var updateProductsIds = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id);\r",
+									"    var cart = await utils.createNewCart(pm, utils.getRandomString(127), productsIds);\r",
+									"    \r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cart.id});\r",
+									"\r",
+									"    for (let [index, updateProductId] of updateProductsIds.entries()) {\r",
+									"        pm.variables.set(`updateProductId(${index})`, updateProductId);\r",
+									"    }\r",
+									"    pm.variables.set('updateProductsIds', updateProductsIds);\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \"{{updateProductId(0)}}\",\r\n    \"{{updateProductId(1)}}\",\r\n    \"{{updateProductId(2)}}\",\r\n    \"{{updateProductId(3)}}\",\r\n    \"{{updateProductId(4)}}\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete products in not existing cart, expect '404 Not Found' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '404 Not Found'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect error to contain 'message' field with detailed error message\", function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    var cartId = pm.request.url.path[3];\r",
+									"\r",
+									"    pm.expect(responseBody['message']).to.contain(`cart (id: '${cartId}') does not exist`)\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products",
+								"{{$randomUUID}}"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete not existing product in existing cart, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code to be '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var cartId = (await utils.createNewCart(pm, utils.getRandomString(127), [])).id;\r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cartId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products/{{$randomUUID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products",
+								"{{$randomUUID}}"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When trying to delete existing product in existing cart, expect '204 No Content' response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect response status code equal to '204 No Content'\", function () {    \r",
+									"    pm.expect(pm.response).to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expect deleted product is not in cart\", function() {\r",
+									"    let cartId = pm.request.url.path[3];\r",
+									"    let deletedProductId = pm.request.url.path[5];\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.variables.get('baseUrl')}/carts/${cartId}/products`,\r",
+									"        method: 'GET'\r",
+									"    }, (error, response) => {\r",
+									"        pm.expect(response).to.have.status(200);\r",
+									"        pm.expect(response.json()).not.to.contains(deletedProductId);\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(async () => {\r",
+									"    var productsIds = await utils.times(5, async _ => (await utils.createNewProduct(pm, utils.getRandomString(127), utils.getRandomString(127))).id);\r",
+									"    var cartId = (await utils.createNewCart(pm, utils.getRandomString(127), productsIds)).id;\r",
+									"    var deletedProductId = productsIds[2];\r",
+									"    \r",
+									"    pm.request.url.variables.upsert({key: \"cartId\", value: cartId});\r",
+									"    pm.request.url.variables.upsert({key: \"productId\", value: deletedProductId});\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/carts/:cartId/products/:productId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"carts",
+								":cartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "cartId",
+									"value": "{{$randomUUID}}"
+								},
+								{
+									"key": "productId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"utils = {\r",
+					"    createNewProduct: async function(postmanContext, productName, productDescription) {\r",
+					"        return new Promise((resolve, reject) => {\r",
+					"            postmanContext.sendRequest({\r",
+					"                url: `${pm.variables.get('baseUrl')}/products`,\r",
+					"                method: 'POST',\r",
+					"                body: {\r",
+					"                    mode: 'raw',\r",
+					"                    raw: JSON.stringify({\r",
+					"                        \"name\": productName,\r",
+					"                        \"description\": productDescription, \r",
+					"                    })\r",
+					"                },\r",
+					"                header: {\r",
+					"                    'Content-Type': 'application/json'\r",
+					"                }\r",
+					"            }, (err, response) => {\r",
+					"                if (err) {\r",
+					"                    return reject(err);\r",
+					"                }\r",
+					"\r",
+					"                return resolve(response);\r",
+					"            })\r",
+					"        }).then((response) => {\r",
+					"            return response.json();\r",
+					"        }, (error) => error);\r",
+					"    },\r",
+					"\r",
+					"    createNewCategory: async function(postmanContext, categoryName, categoryDescription) {\r",
+					"        return new Promise((resolve, reject) => {\r",
+					"            postmanContext.sendRequest({\r",
+					"                url: `${pm.variables.get('baseUrl')}/categories`,\r",
+					"                method: 'POST',\r",
+					"                body: {\r",
+					"                    mode: 'raw',\r",
+					"                    raw: JSON.stringify({\r",
+					"                        \"name\": categoryName,\r",
+					"                        \"description\": categoryDescription, \r",
+					"                    })\r",
+					"                },\r",
+					"                header: {\r",
+					"                    'Content-Type': 'application/json'\r",
+					"                }\r",
+					"            }, (err, response) => {\r",
+					"                if (err) {\r",
+					"                    return reject(err);\r",
+					"                }\r",
+					"\r",
+					"                return resolve(response);\r",
+					"            })\r",
+					"        }).then((response) => {\r",
+					"            return response.json();\r",
+					"        }, (error) => error);\r",
+					"    },\r",
+					"\r",
+					"    createNewCart: async function(postmanContext, cartName, productIds) {\r",
+					"        return new Promise((resolve, reject) => {\r",
+					"            postmanContext.sendRequest({\r",
+					"                url: `${pm.variables.get('baseUrl')}/carts`,\r",
+					"                method: 'POST',\r",
+					"                body: {\r",
+					"                    mode: 'raw',\r",
+					"                    raw: JSON.stringify({\r",
+					"                        \"name\": cartName,\r",
+					"                        \"products\": productIds, \r",
+					"                    })\r",
+					"                },\r",
+					"                header: {\r",
+					"                    'Content-Type': 'application/json'\r",
+					"                }\r",
+					"            }, (err, response) => {\r",
+					"                if (err) {\r",
+					"                    return reject(err);\r",
+					"                }\r",
+					"\r",
+					"                return resolve(response);\r",
+					"            })\r",
+					"        }).then((response) => {\r",
+					"            return response.json();\r",
+					"        }, error => console.log(JSON.stringify(error)));\r",
+					"    },\r",
+					"\r",
+					"    times: async function(times, callback) {\r",
+					"        var results = [];\r",
+					"        for (var i = 0; i < times; i++) {\r",
+					"            results.push(await callback());\r",
+					"        }\r",
+					"\r",
+					"        return results;\r",
+					"    },\r",
+					"\r",
+					"    isValidUUID: function(uuidString) {\r",
+					"        return RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').test(uuidString)\r",
+					"    },\r",
+					"\r",
+					"    getRandomString: function (length) {\r",
+					"        let randomString = \"\";\r",
+					"        for (let i = 0; i < length; i++){\r",
+					"            randomString += pm.variables.replaceIn(\"{{$randomAlphaNumeric}}\");\r",
+					"        }\r",
+					"        return randomString;\r",
+					"    }\r",
+					"}\r",
+					"\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost:9000/api/v1"
+		}
+	]
+}

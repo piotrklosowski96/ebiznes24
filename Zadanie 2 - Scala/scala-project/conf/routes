@@ -1,0 +1,22 @@
+POST          /api/v1/products                                 controllers.ProductsController.addProduct()
+GET           /api/v1/products                                 controllers.ProductsController.getProducts()
+GET           /api/v1/products/:productId                      controllers.ProductsController.getProductById(productId: java.util.UUID)
+PUT           /api/v1/products/:productId                      controllers.ProductsController.updateProduct(productId: java.util.UUID)
+DELETE        /api/v1/products/:productId                      controllers.ProductsController.deleteProduct(productId: java.util.UUID)
+
+POST          /api/v1/categories                               controllers.CategoriesController.addCategory()
+GET           /api/v1/categories                               controllers.CategoriesController.getCategories()
+GET           /api/v1/categories/:categoryId                   controllers.CategoriesController.getCategoryById(categoryId: java.util.UUID)
+PUT           /api/v1/categories/:categoryId                   controllers.CategoriesController.updateCategory(categoryId: java.util.UUID)
+DELETE        /api/v1/categories/:categoryId                   controllers.CategoriesController.deleteCategory(categoryId: java.util.UUID)
+
+POST          /api/v1/carts                                    controllers.CartsController.createCart()
+GET           /api/v1/carts                                    controllers.CartsController.getAllCarts()
+GET           /api/v1/carts/:cartId                            controllers.CartsController.getCartById(cartId: java.util.UUID)
+PUT           /api/v1/carts/:cartId                            controllers.CartsController.updateCart(cartId: java.util.UUID)
+DELETE        /api/v1/carts/:cartId                            controllers.CartsController.deleteCart(cartId: java.util.UUID)
+
+POST          /api/v1/carts/:cartId/products/:productId        controllers.CartsController.addProductToCart(cartId: java.util.UUID, productId: java.util.UUID)
+GET           /api/v1/carts/:cartId/products                   controllers.CartsController.getProductsInCart(cartId: java.util.UUID)
+PUT           /api/v1/carts/:cartId/products                   controllers.CartsController.updateProductsInCart(cartId: java.util.UUID)
+DELETE        /api/v1/carts/:cartId/products/:productId        controllers.CartsController.deleteProductFromCart(cartId: java.util.UUID, productId: java.util.UUID)
