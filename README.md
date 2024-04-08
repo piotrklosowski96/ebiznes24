@@ -27,3 +27,23 @@ Wymaganie 3 i 4 zaimplementowałem w tym samym commicie.
 Kod: [Folder z zadaniem 1](https://github.com/piotrklosowski96/ebiznes24/tree/master/Zadanie%201%20-%20Docker)
 
 Link do obrazu na hubie: [Link do hub.docker.com](https://hub.docker.com/layers/piotrklosowski/ebiznes24/latest/images/sha256-8bb50a142475e4689a0c86ad12058ca7a402c434abe0680c84d5aa485d871e13?context=repo)
+
+
+
+**Zadanie 2 - Scala**
+
+Należy stworzyć aplikację na frameworku Play w Scali 2.
+
+:white_check_mark: 3.0 Należy stworzyć kontroler do Produktów
+
+:white_check_mark: 3.5 Do kontrolera należy stworzyć endpointy zgodnie z CRUD - dane pobierane z listy
+
+:white_check_mark: 4.0 Należy stworzyć kontrolery do Kategorii oraz Koszyka + endpointy zgodnie z CRUD
+
+:white_check_mark: 4.5 Należy aplikację uruchomić na dockerze (stworzyć obraz) oraz dodać skrypt uruchamiający aplikację via ngrok
+
+:white_check_mark: 5.0 Należy dodać konfigurację CORS dla dwóch hostów dla metod CRUD
+
+Kontrolery mogą bazować na listach zamiast baz danych. CRUD: show all, show by id (get), update (put), delete (delete), add (post).
+
+[Link do commita](https://github.com/piotrklosowski96/ebiznes24/commit/e8aea0089a062fcf5bb83e045af60f784c23ab40)
