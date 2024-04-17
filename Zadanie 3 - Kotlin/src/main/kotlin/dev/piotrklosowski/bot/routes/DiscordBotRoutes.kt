@@ -1,10 +1,9 @@
 package dev.piotrklosowski.bot.routes
 
 import com.iwebpp.crypto.TweetNaclFast
+import dev.piotrklosowski.bot.DiscordCommandParser
 import dev.piotrklosowski.bot.clients.discord.DiscordClient
 import dev.piotrklosowski.bot.clients.discord.models.InteractionObject
-import dev.piotrklosowski.bot.clients.discord.models.InteractionType
-import dev.piotrklosowski.bot.commands.HandleApplicationCommandInteractionCommand
 import dev.piotrklosowski.bot.commands.SendTextMessageCommand
 import dev.piotrklosowski.bot.models.SendTextMessage
 import io.ktor.http.*
@@ -25,6 +24,7 @@ fun String.toHexByteArray(): ByteArray {
 fun Route.discordBotRouting(discordClient: DiscordClient) {
     val publicKey = System.getenv("DISCORD_BOT_PUBLIC_KEY")
     val signatureVerifier = TweetNaclFast.Signature(publicKey.toHexByteArray(), null)
+    val discordCommandParser = DiscordCommandParser()
 
     fun verifyDiscordRequest(body: String, timestamp: String?, signature: String?): Boolean {
         if (timestamp == null || signature == null) {
@@ -49,18 +49,10 @@ fun Route.discordBotRouting(discordClient: DiscordClient) {
         val requestSignature = call.request.headers["X-Signature-Ed25519"]
         if (!verifyDiscordRequest(rawBody, requestTimestamp, requestSignature)) {
             call.respond(HttpStatusCode.Unauthorized)
+            return@post
         }
 
-        val interactionParams = call.receive<InteractionObject>()
-        when (interactionParams.type) {
-            InteractionType.PING -> call.respond("{\"type\": 1}")
-            InteractionType.APPLICATION_COMMAND -> {
-                val command = HandleApplicationCommandInteractionCommand(discordClient, interactionParams)
-                command.execute()
-            }
-            else -> println(interactionParams.toString())
-        }
-
-        call.respond(HttpStatusCode.OK)
+        val interactionObject = call.receive<InteractionObject>()
+        discordCommandParser.parseInput(call, interactionObject).execute()
     }
 }

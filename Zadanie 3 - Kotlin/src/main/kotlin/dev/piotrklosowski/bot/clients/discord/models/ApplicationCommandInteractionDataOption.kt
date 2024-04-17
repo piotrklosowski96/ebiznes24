@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class ApplicationCommandInteractionDataOption(
     val name: String,
     val type: Int,
-    val value: String,
+    val value: String? = null,
 )

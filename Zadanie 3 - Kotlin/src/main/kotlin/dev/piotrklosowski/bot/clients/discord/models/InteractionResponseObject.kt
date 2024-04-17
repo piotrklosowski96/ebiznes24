@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 //InteractionResponseObject ...
 data class InteractionResponseObject(
     val type: InteractionResponseType,
-    val data: InteractionMessageCallbackData
+    val data: InteractionMessageCallbackData? = null,
 )

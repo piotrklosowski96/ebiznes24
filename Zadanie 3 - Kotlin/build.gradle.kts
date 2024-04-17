@@ -15,7 +15,7 @@ application {
     mainClass.set("dev.piotrklosowski.bot.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment -Xdebug")
 }
 
 repositories {
@@ -35,6 +35,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm")
+
+    implementation("io.insert-koin:koin-core-jvm:3.5.6")
+    implementation("io.insert-koin:koin-ktor:3.5.6")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

@@ -6,8 +6,10 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
 // DiscordClient ...
@@ -52,6 +54,13 @@ class DiscordClient(token: String): IClient {
                     content = "Message sent to bot: `$message`",
                 )
             ))
+        }
+    }
+
+    suspend fun respondToInteraction(interactionId: String, interactionToken: String, interactionResponseObject: InteractionResponseObject) {
+        val response = httpClient.post("$discordAPIEndpoint/interactions/${interactionId}/${interactionToken}/callback") {
+            contentType(ContentType.Application.Json)
+            setBody(interactionResponseObject)
         }
     }
 }
