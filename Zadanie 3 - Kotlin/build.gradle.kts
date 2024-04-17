@@ -23,6 +23,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.purejava:tweetnacl-java:1.1.2")
+    implementation("io.ktor:ktor-server-double-receive:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-client-core-jvm")

@@ -1,7 +1,7 @@
 package dev.piotrklosowski.bot.clients.discord
 
 import dev.piotrklosowski.bot.clients.IClient
-import dev.piotrklosowski.bot.clients.discord.models.CreateMessage
+import dev.piotrklosowski.bot.clients.discord.models.*
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -31,6 +31,27 @@ class DiscordClient(token: String): IClient {
         httpClient.post("$discordAPIEndpoint/channels/${channelId}/messages") {
             contentType(ContentType.Application.Json)
             setBody(CreateMessage(messageContents))
+        }
+    }
+
+    suspend fun handleApplicationCommandInteraction(interactionObject: InteractionObject) {
+        when(interactionObject.data?.name) {
+            "message_to_bot" -> handleMessageToBotCommand(interactionObject.id, interactionObject.token, interactionObject.data)
+            else -> println(interactionObject.data?.name)
+        }
+    }
+
+    private suspend fun handleMessageToBotCommand(interactionId: String, interactionToken: String, commandData: ApplicationCommandData) {
+        val message = commandData.options?.first { o -> o.name == "message" }?.value
+
+        httpClient.post("$discordAPIEndpoint/interactions/${interactionId}/${interactionToken}/callback") {
+            contentType(ContentType.Application.Json)
+            setBody(InteractionResponseObject(
+                type = InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data = InteractionMessageCallbackData(
+                    content = "Message sent to bot: `$message`",
+                )
+            ))
         }
     }
 }
