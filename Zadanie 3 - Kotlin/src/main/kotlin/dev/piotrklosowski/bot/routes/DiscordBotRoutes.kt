@@ -1,7 +1,7 @@
 package dev.piotrklosowski.bot.routes
 
 import com.iwebpp.crypto.TweetNaclFast
-import dev.piotrklosowski.bot.DiscordCommandParser
+import dev.piotrklosowski.bot.clients.discord.DiscordCommandParser
 import dev.piotrklosowski.bot.clients.discord.DiscordClient
 import dev.piotrklosowski.bot.clients.discord.models.InteractionObject
 import dev.piotrklosowski.bot.commands.SendTextMessageCommand
