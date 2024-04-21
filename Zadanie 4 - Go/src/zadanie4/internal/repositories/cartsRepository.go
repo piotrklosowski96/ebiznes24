@@ -16,7 +16,10 @@ type CartsRepository struct {
 
 // NewCartsRepository ...
 func NewCartsRepository(databaseHandle *gorm.DB) *CartsRepository {
-	autoMigrateErr := databaseHandle.AutoMigrate(&repositoryModels.Cart{})
+	autoMigrateErr := databaseHandle.AutoMigrate(
+		&repositoryModels.Cart{},
+		&repositoryModels.Product{},
+	)
 	if autoMigrateErr != nil {
 		panic(autoMigrateErr.Error())
 	}

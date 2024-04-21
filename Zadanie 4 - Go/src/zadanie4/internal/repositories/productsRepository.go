@@ -15,7 +15,10 @@ type ProductsRepository struct {
 
 // NewProductsRepository ...
 func NewProductsRepository(databaseHandle *gorm.DB) *ProductsRepository {
-	autoMigrateErr := databaseHandle.AutoMigrate(&repositoryModels.Product{})
+	autoMigrateErr := databaseHandle.AutoMigrate(
+		&repositoryModels.Product{},
+		&repositoryModels.Category{},
+	)
 	if autoMigrateErr != nil {
 		panic(autoMigrateErr.Error())
 	}
@@ -32,7 +35,7 @@ func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductC
 		Description: productCreateRequest.Description,
 	}
 
-	createErr := r.databaseHandle.Create(product).Error
+	createErr := r.databaseHandle.Omit("Categories.*").Create(product).Error
 	if createErr != nil {
 		return nil, errors.HandleDatabaseError(createErr)
 	}
@@ -44,7 +47,7 @@ func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductC
 func (r *ProductsRepository) GetAllProducts() ([]*repositoryModels.Product, error) {
 	var products []*repositoryModels.Product
 
-	findErr := r.databaseHandle.Find(&products).Error
+	findErr := r.databaseHandle.Preload("Categories").Find(&products).Error
 	if findErr != nil {
 		return nil, errors.HandleDatabaseError(findErr)
 	}
@@ -56,7 +59,7 @@ func (r *ProductsRepository) GetAllProducts() ([]*repositoryModels.Product, erro
 func (r *ProductsRepository) GetProductById(productId string) (*repositoryModels.Product, error) {
 	var product repositoryModels.Product
 
-	firstErr := r.databaseHandle.First(&product, "id = ?", productId).Error
+	firstErr := r.databaseHandle.Preload("Categories").First(&product, "id = ?", productId).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -82,7 +85,7 @@ func (r *ProductsRepository) UpdateProduct(productId string, productUpdateReques
 		return nil, errors.HandleDatabaseError(updatesErr)
 	}
 
-	firstErr := r.databaseHandle.First(&product, "id = ?", productId).Error
+	firstErr := r.databaseHandle.Preload("Categories").First(&product, "id = ?", productId).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}

@@ -1,7 +1,7 @@
 package models
 
-// Product ...
-type Product struct {
+// Category ...
+type Category struct {
 	CommonFields
 
 	Name        string

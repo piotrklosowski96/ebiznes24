@@ -76,7 +76,7 @@ func (c *ProductsController) GetAllProducts(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, products)
 }
 
-// NOTE(Piotr Kłosowski): When more errors are handles change '_' into some meaningful variable name
+// NOTE(Piotr Kłosowski): When more errors are handled change '_' into some meaningful variable name
 func (c *ProductsController) handleGetAllProductsError(ctx echo.Context, _ error) error {
 	return ctx.JSON(http.StatusInternalServerError, map[string]string{
 		"error_message": "unknown error has occurred",
@@ -150,7 +150,7 @@ func (c *ProductsController) DeleteProduct(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
-// NOTE(Piotr Kłosowski): When more errors are handles change '_' into some meaningful variable name
+// NOTE(Piotr Kłosowski): When more errors are handled change '_' into some meaningful variable name
 func (c *ProductsController) handleDeleteProductError(ctx echo.Context, _ error) error {
 	return ctx.JSON(http.StatusInternalServerError, map[string]string{
 		"error_message": "unknown error has occurred",
