@@ -130,7 +130,7 @@ func (r *CartsRepository) UpdateCart(cartId string, cartUpdateRequest *models.Ca
 		return nil
 	})
 	if transactionErr != nil {
-		return nil, errors.HandleDatabaseError(transactionErr)
+		return nil, transactionErr
 	}
 
 	var cart repositoryModels.Cart
