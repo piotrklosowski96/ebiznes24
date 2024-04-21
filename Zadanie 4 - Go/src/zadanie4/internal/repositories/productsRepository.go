@@ -6,6 +6,7 @@ import (
 	"zadanie4/internal/models"
 	"zadanie4/internal/repositories/errors"
 	repositoryModels "zadanie4/internal/repositories/models"
+	"zadanie4/internal/repositories/scopes"
 )
 
 // ProductsRepository ...
@@ -35,7 +36,7 @@ func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductC
 		Description: productCreateRequest.Description,
 	}
 
-	createErr := r.databaseHandle.Omit("Categories.*").Create(product).Error
+	createErr := r.databaseHandle.Scopes(scopes.SkipCategoriesAssociationUpsert).Create(product).Error
 	if createErr != nil {
 		return nil, errors.HandleDatabaseError(createErr)
 	}
@@ -47,7 +48,7 @@ func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductC
 func (r *ProductsRepository) GetAllProducts() ([]*repositoryModels.Product, error) {
 	var products []*repositoryModels.Product
 
-	findErr := r.databaseHandle.Preload("Categories").Find(&products).Error
+	findErr := r.databaseHandle.Scopes(scopes.PreloadCategoriesAssociation).Find(&products).Error
 	if findErr != nil {
 		return nil, errors.HandleDatabaseError(findErr)
 	}
@@ -59,7 +60,10 @@ func (r *ProductsRepository) GetAllProducts() ([]*repositoryModels.Product, erro
 func (r *ProductsRepository) GetProductById(productId string) (*repositoryModels.Product, error) {
 	var product repositoryModels.Product
 
-	firstErr := r.databaseHandle.Preload("Categories").First(&product, "id = ?", productId).Error
+	firstErr := r.databaseHandle.Scopes(
+		scopes.WhereId(productId),
+		scopes.PreloadCategoriesAssociation,
+	).First(&product).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -80,12 +84,15 @@ func (r *ProductsRepository) UpdateProduct(productId string, productUpdateReques
 		updateProduct.Description = productUpdateRequest.Description
 	}
 
-	updatesErr := r.databaseHandle.Where("id = ?", productId).Updates(updateProduct).Error
+	updatesErr := r.databaseHandle.Scopes(scopes.WhereId(productId)).Updates(updateProduct).Error
 	if updatesErr != nil {
 		return nil, errors.HandleDatabaseError(updatesErr)
 	}
 
-	firstErr := r.databaseHandle.Preload("Categories").First(&product, "id = ?", productId).Error
+	firstErr := r.databaseHandle.Scopes(
+		scopes.WhereId(productId),
+		scopes.PreloadCategoriesAssociation,
+	).First(&product).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -95,7 +102,7 @@ func (r *ProductsRepository) UpdateProduct(productId string, productUpdateReques
 
 // DeleteProduct ...
 func (r *ProductsRepository) DeleteProduct(productId string) error {
-	deleteErr := r.databaseHandle.Delete(&repositoryModels.Product{}, "id = ?", productId).Error
+	deleteErr := r.databaseHandle.Scopes(scopes.WhereId(productId)).Delete(&repositoryModels.Product{}).Error
 	if deleteErr != nil {
 		return errors.HandleDatabaseError(deleteErr)
 	}

@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"gorm.io/gorm"
+
 	"zadanie4/internal/models"
 	"zadanie4/internal/repositories/errors"
 	repositoryModels "zadanie4/internal/repositories/models"
+	"zadanie4/internal/repositories/scopes"
 )
 
 // CategoriesRepository ...
@@ -58,7 +60,7 @@ func (r *CategoriesRepository) GetAllCategories() ([]*repositoryModels.Category,
 func (r *CategoriesRepository) GetCategoryById(categoryId string) (*repositoryModels.Category, error) {
 	var category repositoryModels.Category
 
-	firstErr := r.databaseHandle.First(&category, "id = ?", categoryId).Error
+	firstErr := r.databaseHandle.Scopes(scopes.WhereId(categoryId)).First(&category).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -77,13 +79,13 @@ func (r *CategoriesRepository) UpdateCategory(categoryId string, cartUpdateReque
 		updateCategory.Description = cartUpdateRequest.Description
 	}
 
-	updatesErr := r.databaseHandle.Where("id = ?", categoryId).Updates(updateCategory).Error
+	updatesErr := r.databaseHandle.Scopes(scopes.WhereId(categoryId)).Updates(updateCategory).Error
 	if updatesErr != nil {
 		return nil, errors.HandleDatabaseError(updatesErr)
 	}
 
 	var category repositoryModels.Category
-	firstErr := r.databaseHandle.First(&category, "id = ?", categoryId).Error
+	firstErr := r.databaseHandle.Scopes(scopes.WhereId(categoryId)).First(&category).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -93,7 +95,7 @@ func (r *CategoriesRepository) UpdateCategory(categoryId string, cartUpdateReque
 
 // DeleteCategory ...
 func (r *CategoriesRepository) DeleteCategory(categoryId string) error {
-	deleteErr := r.databaseHandle.Delete(&repositoryModels.Category{}, "id = ?", categoryId).Error
+	deleteErr := r.databaseHandle.Scopes(scopes.WhereId(categoryId)).Delete(&repositoryModels.Category{}).Error
 	if deleteErr != nil {
 		return errors.HandleDatabaseError(deleteErr)
 	}

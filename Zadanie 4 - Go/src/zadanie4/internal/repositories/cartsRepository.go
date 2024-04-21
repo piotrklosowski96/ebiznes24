@@ -7,6 +7,7 @@ import (
 	"zadanie4/internal/models"
 	"zadanie4/internal/repositories/errors"
 	repositoryModels "zadanie4/internal/repositories/models"
+	"zadanie4/internal/repositories/scopes"
 )
 
 // CartsRepository ...
@@ -45,7 +46,7 @@ func (r *CartsRepository) CreateCart(cartCreateRequest *models.CartCreateRequest
 		Products:    products,
 	}
 
-	createErr := r.databaseHandle.Omit("Products.*").Create(cart).Error
+	createErr := r.databaseHandle.Scopes(scopes.SkipProductsAssociationUpsert).Create(cart).Error
 	if createErr != nil {
 		return nil, errors.HandleDatabaseError(createErr)
 	}
@@ -53,7 +54,10 @@ func (r *CartsRepository) CreateCart(cartCreateRequest *models.CartCreateRequest
 	// NOTE(Piotr Kłosowski): Check if there is possibility to create model in DB and return it using different model
 	// in one statement
 	var createdCart repositoryModels.Cart
-	findErr := r.databaseHandle.Preload("Products").First(&createdCart, "id = ?", cart.ID).Error
+	findErr := r.databaseHandle.Scopes(
+		scopes.WhereId(cart.ID.String()),
+		scopes.PreloadProductsAssociation,
+	).First(&createdCart).Error
 	if findErr != nil {
 		return nil, errors.HandleDatabaseError(findErr)
 	}
@@ -65,7 +69,7 @@ func (r *CartsRepository) CreateCart(cartCreateRequest *models.CartCreateRequest
 func (r *CartsRepository) GetAllCarts() ([]*repositoryModels.Cart, error) {
 	var carts []*repositoryModels.Cart
 
-	findErr := r.databaseHandle.Preload("Products").Find(&carts).Error
+	findErr := r.databaseHandle.Scopes(scopes.PreloadProductsAssociation).Find(&carts).Error
 	if findErr != nil {
 		return nil, errors.HandleDatabaseError(findErr)
 	}
@@ -77,7 +81,10 @@ func (r *CartsRepository) GetAllCarts() ([]*repositoryModels.Cart, error) {
 func (r *CartsRepository) GetCartById(cartId string) (*repositoryModels.Cart, error) {
 	var cart repositoryModels.Cart
 
-	firstErr := r.databaseHandle.Preload("Products").First(&cart, "id = ?", cartId).Error
+	firstErr := r.databaseHandle.Scopes(
+		scopes.WhereId(cartId),
+		scopes.PreloadProductsAssociation,
+	).First(&cart).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -110,12 +117,12 @@ func (r *CartsRepository) UpdateCart(cartId string, cartUpdateRequest *models.Ca
 	}
 
 	transactionErr := r.databaseHandle.Transaction(func(tx *gorm.DB) error {
-		replaceErr := r.databaseHandle.Model(&updateCart).Omit("Products.*").Association("Products").Replace(&products)
+		replaceErr := r.databaseHandle.Model(&updateCart).Scopes(scopes.SkipProductsAssociationUpsert).Association("Products").Replace(&products)
 		if replaceErr != nil {
 			return errors.HandleDatabaseError(replaceErr)
 		}
 
-		updatesErr := r.databaseHandle.Omit("Products.*").Updates(updateCart).Error
+		updatesErr := r.databaseHandle.Scopes(scopes.SkipProductsAssociationUpsert).Updates(updateCart).Error
 		if updatesErr != nil {
 			return errors.HandleDatabaseError(updatesErr)
 		}
@@ -127,7 +134,10 @@ func (r *CartsRepository) UpdateCart(cartId string, cartUpdateRequest *models.Ca
 	}
 
 	var cart repositoryModels.Cart
-	firstErr := r.databaseHandle.Preload("Products").First(&cart, "id = ?", cartId).Error
+	firstErr := r.databaseHandle.Scopes(
+		scopes.WhereId(cartId),
+		scopes.PreloadProductsAssociation,
+	).First(&cart).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
 	}
@@ -137,7 +147,7 @@ func (r *CartsRepository) UpdateCart(cartId string, cartUpdateRequest *models.Ca
 
 // DeleteCart ...
 func (r *CartsRepository) DeleteCart(cartId string) error {
-	deleteErr := r.databaseHandle.Delete(&repositoryModels.Cart{}, "id = ?", cartId).Error
+	deleteErr := r.databaseHandle.Scopes(scopes.WhereId(cartId)).Delete(&repositoryModels.Cart{}).Error
 	if deleteErr != nil {
 		return errors.HandleDatabaseError(deleteErr)
 	}
