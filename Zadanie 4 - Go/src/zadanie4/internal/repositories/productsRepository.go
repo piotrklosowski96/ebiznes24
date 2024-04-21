@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"zadanie4/internal/models"
@@ -31,9 +32,18 @@ func NewProductsRepository(databaseHandle *gorm.DB) *ProductsRepository {
 
 // CreateProduct ...
 func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductCreateRequest) (*repositoryModels.Product, error) {
+	categories := make([]*repositoryModels.Category, len(productCreateRequest.CategoryIds))
+	for idx, categoryId := range productCreateRequest.CategoryIds {
+		categories[idx] = &repositoryModels.Category{
+			CommonFields: repositoryModels.CommonFields{
+				ID: categoryId,
+			},
+		}
+	}
 	product := &repositoryModels.Product{
 		Name:        productCreateRequest.Name,
 		Description: productCreateRequest.Description,
+		Categories:  categories,
 	}
 
 	createErr := r.databaseHandle.Scopes(scopes.SkipCategoriesAssociationUpsert).Create(product).Error
@@ -41,7 +51,16 @@ func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductC
 		return nil, errors.HandleDatabaseError(createErr)
 	}
 
-	return product, nil
+	var createdProduct repositoryModels.Product
+	findErr := r.databaseHandle.Scopes(
+		scopes.WhereId(product.ID.String()),
+		scopes.PreloadCategoriesAssociation,
+	).First(&createdProduct).Error
+	if findErr != nil {
+		return nil, errors.HandleDatabaseError(findErr)
+	}
+
+	return &createdProduct, nil
 }
 
 // GetAllProducts ...
@@ -73,9 +92,20 @@ func (r *ProductsRepository) GetProductById(productId string) (*repositoryModels
 
 // UpdateProduct ...
 func (r *ProductsRepository) UpdateProduct(productId string, productUpdateRequest *models.ProductUpdateRequest) (*repositoryModels.Product, error) {
-	var product repositoryModels.Product
+	categories := make([]*repositoryModels.Category, len(productUpdateRequest.CategoryIds))
+	for idx, categoryId := range productUpdateRequest.CategoryIds {
+		categories[idx] = &repositoryModels.Category{
+			CommonFields: repositoryModels.CommonFields{
+				ID: categoryId,
+			},
+		}
+	}
+	updateProduct := repositoryModels.Product{
+		CommonFields: repositoryModels.CommonFields{
+			ID: uuid.MustParse(productId),
+		},
+	}
 
-	var updateProduct repositoryModels.Product
 	if productUpdateRequest.Name != nil {
 		updateProduct.Name = *productUpdateRequest.Name
 	}
@@ -84,11 +114,24 @@ func (r *ProductsRepository) UpdateProduct(productId string, productUpdateReques
 		updateProduct.Description = productUpdateRequest.Description
 	}
 
-	updatesErr := r.databaseHandle.Scopes(scopes.WhereId(productId)).Updates(updateProduct).Error
-	if updatesErr != nil {
-		return nil, errors.HandleDatabaseError(updatesErr)
+	transactionErr := r.databaseHandle.Transaction(func(tx *gorm.DB) error {
+		replaceErr := r.databaseHandle.Model(&updateProduct).Scopes(scopes.SkipCategoriesAssociationUpsert).Association("Categories").Replace(&categories)
+		if replaceErr != nil {
+			return errors.HandleDatabaseError(replaceErr)
+		}
+
+		updatesErr := r.databaseHandle.Scopes(scopes.SkipProductsAssociationUpsert).Updates(updateProduct).Error
+		if updatesErr != nil {
+			return errors.HandleDatabaseError(updatesErr)
+		}
+
+		return nil
+	})
+	if transactionErr != nil {
+		return nil, transactionErr
 	}
 
+	var product repositoryModels.Product
 	firstErr := r.databaseHandle.Scopes(
 		scopes.WhereId(productId),
 		scopes.PreloadCategoriesAssociation,

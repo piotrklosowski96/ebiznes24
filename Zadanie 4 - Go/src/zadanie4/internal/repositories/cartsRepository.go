@@ -57,6 +57,7 @@ func (r *CartsRepository) CreateCart(cartCreateRequest *models.CartCreateRequest
 	findErr := r.databaseHandle.Scopes(
 		scopes.WhereId(cart.ID.String()),
 		scopes.PreloadProductsAssociation,
+		scopes.PreloadNestedProductsCategoriesAssociation,
 	).First(&createdCart).Error
 	if findErr != nil {
 		return nil, errors.HandleDatabaseError(findErr)
@@ -69,7 +70,10 @@ func (r *CartsRepository) CreateCart(cartCreateRequest *models.CartCreateRequest
 func (r *CartsRepository) GetAllCarts() ([]*repositoryModels.Cart, error) {
 	var carts []*repositoryModels.Cart
 
-	findErr := r.databaseHandle.Scopes(scopes.PreloadProductsAssociation).Find(&carts).Error
+	findErr := r.databaseHandle.Scopes(
+		scopes.PreloadProductsAssociation,
+		scopes.PreloadNestedProductsCategoriesAssociation,
+	).Find(&carts).Error
 	if findErr != nil {
 		return nil, errors.HandleDatabaseError(findErr)
 	}
@@ -84,6 +88,7 @@ func (r *CartsRepository) GetCartById(cartId string) (*repositoryModels.Cart, er
 	firstErr := r.databaseHandle.Scopes(
 		scopes.WhereId(cartId),
 		scopes.PreloadProductsAssociation,
+		scopes.PreloadNestedProductsCategoriesAssociation,
 	).First(&cart).Error
 	if firstErr != nil {
 		return nil, errors.HandleDatabaseError(firstErr)
