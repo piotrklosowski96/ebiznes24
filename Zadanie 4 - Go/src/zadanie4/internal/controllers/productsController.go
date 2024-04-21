@@ -44,13 +44,7 @@ func (c *ProductsController) CreateProduct(ctx echo.Context) error {
 		return c.handleCreateProductError(ctx, createProductErr)
 	}
 
-	product := &models.ProductResponse{
-		ProductID:   createdProduct.ProductID,
-		Name:        createdProduct.Name,
-		Description: createdProduct.Description,
-	}
-
-	return ctx.JSON(http.StatusOK, product)
+	return ctx.JSON(http.StatusOK, models.FromDatabaseProduct(createdProduct))
 }
 
 func (c *ProductsController) handleCreateProductError(ctx echo.Context, createProductErr error) error {
@@ -76,11 +70,7 @@ func (c *ProductsController) GetAllProducts(ctx echo.Context) error {
 
 	products := make([]*models.ProductResponse, len(productsDB))
 	for index, product := range productsDB {
-		products[index] = &models.ProductResponse{
-			ProductID:   product.ProductID,
-			Name:        product.Name,
-			Description: product.Description,
-		}
+		products[index] = models.FromDatabaseProduct(product)
 	}
 
 	return ctx.JSON(http.StatusOK, products)
@@ -101,13 +91,7 @@ func (c *ProductsController) GetProductById(ctx echo.Context) error {
 		return c.handleGetProductByIdError(ctx, getProductByIdErr)
 	}
 
-	product := &models.ProductResponse{
-		ProductID:   productDB.ProductID,
-		Name:        productDB.Name,
-		Description: productDB.Description,
-	}
-
-	return ctx.JSON(http.StatusOK, product)
+	return ctx.JSON(http.StatusOK, models.FromDatabaseProduct(productDB))
 }
 
 func (c *ProductsController) handleGetProductByIdError(ctx echo.Context, getProductByIdErr error) error {
@@ -138,13 +122,7 @@ func (c *ProductsController) UpdateProduct(ctx echo.Context) error {
 		return c.handleUpdateProductError(ctx, updateProductId)
 	}
 
-	product := &models.ProductResponse{
-		ProductID:   updatedProductDB.ProductID,
-		Name:        updatedProductDB.Name,
-		Description: updatedProductDB.Description,
-	}
-
-	return ctx.JSON(http.StatusOK, product)
+	return ctx.JSON(http.StatusOK, models.FromDatabaseProduct(updatedProductDB))
 }
 
 func (c *ProductsController) handleUpdateProductError(ctx echo.Context, getProductByIdErr error) error {

@@ -7,30 +7,24 @@ import (
 
 	"zadanie4/internal/models"
 	"zadanie4/internal/repositories/errors"
+	repositoryModels "zadanie4/internal/repositories/models"
 )
-
-// Product ...
-type Product struct {
-	ProductID   string  `json:"product_id"`
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-}
 
 // ProductsRepository ...
 type ProductsRepository struct {
-	products []*Product
+	products []*repositoryModels.Product
 }
 
 // NewProductsRepository ...
 func NewProductsRepository() *ProductsRepository {
 	return &ProductsRepository{
-		products: []*Product{},
+		products: []*repositoryModels.Product{},
 	}
 }
 
 // CreateProduct ...
-func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductCreateRequest) (*Product, error) {
-	product := &Product{
+func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductCreateRequest) (*repositoryModels.Product, error) {
+	product := &repositoryModels.Product{
 		ProductID:   uuid.NewString(),
 		Name:        productCreateRequest.Name,
 		Description: productCreateRequest.Description,
@@ -42,12 +36,12 @@ func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductC
 }
 
 // GetAllProducts ...
-func (r *ProductsRepository) GetAllProducts() ([]*Product, error) {
+func (r *ProductsRepository) GetAllProducts() ([]*repositoryModels.Product, error) {
 	return r.products, nil
 }
 
 // GetProductById ...
-func (r *ProductsRepository) GetProductById(productId string) (*Product, error) {
+func (r *ProductsRepository) GetProductById(productId string) (*repositoryModels.Product, error) {
 	idx := slices.IndexFunc(r.products, isProductWithIdComparator(productId))
 	if idx < 0 {
 		return nil, &errors.ResourceNotFoundError{ResourceID: productId}
@@ -57,7 +51,7 @@ func (r *ProductsRepository) GetProductById(productId string) (*Product, error) 
 }
 
 // UpdateProduct ...
-func (r *ProductsRepository) UpdateProduct(productId string, productUpdateRequest *models.ProductUpdateRequest) (*Product, error) {
+func (r *ProductsRepository) UpdateProduct(productId string, productUpdateRequest *models.ProductUpdateRequest) (*repositoryModels.Product, error) {
 	idx := slices.IndexFunc(r.products, isProductWithIdComparator(productId))
 	if idx < 0 {
 		return nil, &errors.ResourceNotFoundError{ResourceID: productId}
@@ -87,8 +81,8 @@ func (r *ProductsRepository) DeleteProduct(productId string) error {
 	return nil
 }
 
-func isProductWithIdComparator(productId string) func(product *Product) bool {
-	return func(product *Product) bool {
+func isProductWithIdComparator(productId string) func(product *repositoryModels.Product) bool {
+	return func(product *repositoryModels.Product) bool {
 		return product.ProductID == productId
 	}
 }
