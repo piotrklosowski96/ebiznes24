@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"zadanie4/internal/models"
 	"zadanie4/internal/repositories/errors"
 )
 
@@ -28,8 +29,13 @@ func NewProductsRepository() *ProductsRepository {
 }
 
 // CreateProduct ...
-func (r *ProductsRepository) CreateProduct(product *Product) (*Product, error) {
-	product.ProductID = uuid.NewString()
+func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductCreateRequest) (*Product, error) {
+	product := &Product{
+		ProductID:   uuid.NewString(),
+		Name:        productCreateRequest.Name,
+		Description: productCreateRequest.Description,
+	}
+
 	r.products = append(r.products, product)
 
 	return product, nil
@@ -51,13 +57,19 @@ func (r *ProductsRepository) GetProductById(productId string) (*Product, error) 
 }
 
 // UpdateProduct ...
-func (r *ProductsRepository) UpdateProduct(productId string, updatedProduct *Product) (*Product, error) {
+func (r *ProductsRepository) UpdateProduct(productId string, productUpdateRequest *models.ProductUpdateRequest) (*Product, error) {
 	idx := slices.IndexFunc(r.products, isProductWithIdComparator(productId))
 	if idx < 0 {
 		return nil, &errors.ResourceNotFoundError{ResourceID: productId}
 	}
 
-	r.products[idx] = updatedProduct
+	if productUpdateRequest.Name != nil {
+		r.products[idx].Name = *productUpdateRequest.Name
+	}
+
+	if productUpdateRequest.Description != nil {
+		r.products[idx].Description = productUpdateRequest.Description
+	}
 
 	return r.products[idx], nil
 }

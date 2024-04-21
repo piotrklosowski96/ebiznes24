@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"zadanie4/internal/models"
 
 	"zadanie4/internal/repositories"
 	repositoryErrors "zadanie4/internal/repositories/errors"
@@ -32,15 +33,24 @@ func (c *ProductsController) RegisterRoutes(endpointsGroup *echo.Group) {
 
 // CreateProduct ...
 func (c *ProductsController) CreateProduct(ctx echo.Context) error {
-	product := &repositories.Product{}
-	_ = ctx.Bind(product)
+	productCreateRequest := &models.ProductCreateRequest{}
+	bindErr := ctx.Bind(productCreateRequest)
+	if bindErr != nil {
+		return c.handleCreateProductError(ctx, bindErr)
+	}
 
-	newProduct, createProductErr := c.repository.CreateProduct(product)
+	createdProduct, createProductErr := c.repository.CreateProduct(productCreateRequest)
 	if createProductErr != nil {
 		return c.handleCreateProductError(ctx, createProductErr)
 	}
 
-	return ctx.JSON(http.StatusOK, newProduct)
+	product := &models.ProductResponse{
+		ProductID:   createdProduct.ProductID,
+		Name:        createdProduct.Name,
+		Description: createdProduct.Description,
+	}
+
+	return ctx.JSON(http.StatusOK, product)
 }
 
 func (c *ProductsController) handleCreateProductError(ctx echo.Context, createProductErr error) error {
@@ -59,9 +69,18 @@ func (c *ProductsController) handleCreateProductError(ctx echo.Context, createPr
 
 // GetAllProducts ...
 func (c *ProductsController) GetAllProducts(ctx echo.Context) error {
-	products, getAllProductsErr := c.repository.GetAllProducts()
+	productsDB, getAllProductsErr := c.repository.GetAllProducts()
 	if getAllProductsErr != nil {
 		return c.handleGetAllProductsError(ctx, getAllProductsErr)
+	}
+
+	products := make([]*models.ProductResponse, len(productsDB))
+	for index, product := range productsDB {
+		products[index] = &models.ProductResponse{
+			ProductID:   product.ProductID,
+			Name:        product.Name,
+			Description: product.Description,
+		}
 	}
 
 	return ctx.JSON(http.StatusOK, products)
@@ -77,9 +96,15 @@ func (c *ProductsController) handleGetAllProductsError(ctx echo.Context, _ error
 // GetProductById ...
 func (c *ProductsController) GetProductById(ctx echo.Context) error {
 	productId := ctx.Param("productId")
-	product, getProductByIdErr := c.repository.GetProductById(productId)
+	productDB, getProductByIdErr := c.repository.GetProductById(productId)
 	if getProductByIdErr != nil {
 		return c.handleGetProductByIdError(ctx, getProductByIdErr)
+	}
+
+	product := &models.ProductResponse{
+		ProductID:   productDB.ProductID,
+		Name:        productDB.Name,
+		Description: productDB.Description,
 	}
 
 	return ctx.JSON(http.StatusOK, product)
@@ -102,15 +127,24 @@ func (c *ProductsController) handleGetProductByIdError(ctx echo.Context, getProd
 // UpdateProduct ...
 func (c *ProductsController) UpdateProduct(ctx echo.Context) error {
 	productId := ctx.Param("productId")
-	product := &repositories.Product{}
-	_ = ctx.Bind(product)
+	productUpdateRequest := &models.ProductUpdateRequest{}
+	bindErr := ctx.Bind(productUpdateRequest)
+	if bindErr != nil {
+		return c.handleUpdateProductError(ctx, bindErr)
+	}
 
-	updatedProduct, updateProductId := c.repository.UpdateProduct(productId, product)
+	updatedProductDB, updateProductId := c.repository.UpdateProduct(productId, productUpdateRequest)
 	if updateProductId != nil {
 		return c.handleUpdateProductError(ctx, updateProductId)
 	}
 
-	return ctx.JSON(http.StatusOK, updatedProduct)
+	product := &models.ProductResponse{
+		ProductID:   updatedProductDB.ProductID,
+		Name:        updatedProductDB.Name,
+		Description: updatedProductDB.Description,
+	}
+
+	return ctx.JSON(http.StatusOK, product)
 }
 
 func (c *ProductsController) handleUpdateProductError(ctx echo.Context, getProductByIdErr error) error {
