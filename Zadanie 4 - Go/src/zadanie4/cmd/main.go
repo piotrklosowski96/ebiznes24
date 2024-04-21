@@ -31,5 +31,9 @@ func main() {
 	productsController := controllers.NewProductsController(productsRepository)
 	productsController.RegisterRoutes(apiGroup)
 
+	cartsRepository := repositories.NewCartsRepository(databaseHandle)
+	cartsController := controllers.NewCartsController(cartsRepository)
+	cartsController.RegisterRoutes(apiGroup)
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
