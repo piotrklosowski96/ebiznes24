@@ -56,6 +56,14 @@ func (c *ProductsController) handleCreateProductError(ctx echo.Context, createPr
 		})
 	}
 
+	var foreignKeyConstraintViolated *repositoryErrors.ForeignKeyConstraintViolated
+	if errors.As(createProductErr, &foreignKeyConstraintViolated) {
+		// INFO(Piotr Kłosowski): Some other, more robust error handling should be done
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"error_message": fmt.Sprintf("foreign key constraint failed"),
+		})
+	}
+
 	return ctx.JSON(http.StatusInternalServerError, map[string]string{
 		"error_message": "unknown error has occurred",
 	})
@@ -131,6 +139,14 @@ func (c *ProductsController) handleUpdateProductError(ctx echo.Context, getProdu
 		// INFO(Piotr Kłosowski): Some other, more robust error handling should be done
 		return ctx.JSON(http.StatusNotFound, map[string]string{
 			"error_message": fmt.Sprintf("product (id: '%s') does not exist", ctx.Param("productId")),
+		})
+	}
+
+	var foreignKeyConstraintViolated *repositoryErrors.ForeignKeyConstraintViolated
+	if errors.As(getProductByIdErr, &foreignKeyConstraintViolated) {
+		// INFO(Piotr Kłosowski): Some other, more robust error handling should be done
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"error_message": fmt.Sprintf("foreign key constraint failed"),
 		})
 	}
 
