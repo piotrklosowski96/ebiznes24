@@ -1,9 +1,7 @@
 package repositories
 
 import (
-	"slices"
-
-	"github.com/google/uuid"
+	"gorm.io/gorm"
 
 	"zadanie4/internal/models"
 	"zadanie4/internal/repositories/errors"
@@ -12,77 +10,92 @@ import (
 
 // ProductsRepository ...
 type ProductsRepository struct {
-	products []*repositoryModels.Product
+	databaseHandle *gorm.DB
 }
 
 // NewProductsRepository ...
-func NewProductsRepository() *ProductsRepository {
+func NewProductsRepository(databaseHandle *gorm.DB) *ProductsRepository {
+	autoMigrateErr := databaseHandle.AutoMigrate(&repositoryModels.Product{})
+	if autoMigrateErr != nil {
+		panic(autoMigrateErr.Error())
+	}
+
 	return &ProductsRepository{
-		products: []*repositoryModels.Product{},
+		databaseHandle: databaseHandle,
 	}
 }
 
 // CreateProduct ...
 func (r *ProductsRepository) CreateProduct(productCreateRequest *models.ProductCreateRequest) (*repositoryModels.Product, error) {
 	product := &repositoryModels.Product{
-		ProductID:   uuid.NewString(),
 		Name:        productCreateRequest.Name,
 		Description: productCreateRequest.Description,
 	}
 
-	r.products = append(r.products, product)
+	createErr := r.databaseHandle.Create(product).Error
+	if createErr != nil {
+		return nil, errors.HandleDatabaseError(createErr)
+	}
 
 	return product, nil
 }
 
 // GetAllProducts ...
 func (r *ProductsRepository) GetAllProducts() ([]*repositoryModels.Product, error) {
-	return r.products, nil
+	var products []*repositoryModels.Product
+
+	findErr := r.databaseHandle.Find(&products).Error
+	if findErr != nil {
+		return nil, errors.HandleDatabaseError(findErr)
+	}
+
+	return products, nil
 }
 
 // GetProductById ...
 func (r *ProductsRepository) GetProductById(productId string) (*repositoryModels.Product, error) {
-	idx := slices.IndexFunc(r.products, isProductWithIdComparator(productId))
-	if idx < 0 {
-		return nil, &errors.ResourceNotFoundError{ResourceID: productId}
+	var product repositoryModels.Product
+
+	firstErr := r.databaseHandle.First(&product, "id = ?", productId).Error
+	if firstErr != nil {
+		return nil, errors.HandleDatabaseError(firstErr)
 	}
 
-	return r.products[idx], nil
+	return &product, nil
 }
 
 // UpdateProduct ...
 func (r *ProductsRepository) UpdateProduct(productId string, productUpdateRequest *models.ProductUpdateRequest) (*repositoryModels.Product, error) {
-	idx := slices.IndexFunc(r.products, isProductWithIdComparator(productId))
-	if idx < 0 {
-		return nil, &errors.ResourceNotFoundError{ResourceID: productId}
-	}
+	var product repositoryModels.Product
 
+	var updateProduct repositoryModels.Product
 	if productUpdateRequest.Name != nil {
-		r.products[idx].Name = *productUpdateRequest.Name
+		updateProduct.Name = *productUpdateRequest.Name
 	}
 
 	if productUpdateRequest.Description != nil {
-		r.products[idx].Description = productUpdateRequest.Description
+		updateProduct.Description = productUpdateRequest.Description
 	}
 
-	return r.products[idx], nil
+	updatesErr := r.databaseHandle.Where("id = ?", productId).Updates(updateProduct).Error
+	if updatesErr != nil {
+		return nil, errors.HandleDatabaseError(updatesErr)
+	}
+
+	firstErr := r.databaseHandle.First(&product, "id = ?", productId).Error
+	if firstErr != nil {
+		return nil, errors.HandleDatabaseError(firstErr)
+	}
+
+	return &product, nil
 }
 
 // DeleteProduct ...
 func (r *ProductsRepository) DeleteProduct(productId string) error {
-	idx := slices.IndexFunc(r.products, isProductWithIdComparator(productId))
-	if idx < 0 {
-		return nil
+	deleteErr := r.databaseHandle.Delete(&repositoryModels.Product{}, "id = ?", productId).Error
+	if deleteErr != nil {
+		return errors.HandleDatabaseError(deleteErr)
 	}
-
-	r.products[idx] = r.products[len(r.products)-1]
-	r.products = r.products[:len(r.products)-1]
 
 	return nil
-}
-
-func isProductWithIdComparator(productId string) func(product *repositoryModels.Product) bool {
-	return func(product *repositoryModels.Product) bool {
-		return product.ProductID == productId
-	}
 }

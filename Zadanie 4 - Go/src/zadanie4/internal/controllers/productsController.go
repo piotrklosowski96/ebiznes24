@@ -52,7 +52,7 @@ func (c *ProductsController) handleCreateProductError(ctx echo.Context, createPr
 	if errors.As(createProductErr, &resourceNotFoundError) {
 		// INFO(Piotr Kłosowski): Some other, more robust error handling should be done
 		return ctx.JSON(http.StatusNotFound, map[string]string{
-			"error_message": fmt.Sprintf("product (id: '%s') does not exist", resourceNotFoundError.ResourceID),
+			"error_message": fmt.Sprintf("product (id: '%s') does not exist", ctx.Param("productId")),
 		})
 	}
 
@@ -99,7 +99,7 @@ func (c *ProductsController) handleGetProductByIdError(ctx echo.Context, getProd
 	if errors.As(getProductByIdErr, &resourceNotFoundError) {
 		// INFO(Piotr Kłosowski): Some other, more robust error handling should be done
 		return ctx.JSON(http.StatusNotFound, map[string]string{
-			"error_message": fmt.Sprintf("product (id: '%s') does not exist", resourceNotFoundError.ResourceID),
+			"error_message": fmt.Sprintf("product (id: '%s') does not exist", ctx.Param("productId")),
 		})
 	}
 
@@ -130,7 +130,7 @@ func (c *ProductsController) handleUpdateProductError(ctx echo.Context, getProdu
 	if errors.As(getProductByIdErr, &resourceNotFoundError) {
 		// INFO(Piotr Kłosowski): Some other, more robust error handling should be done
 		return ctx.JSON(http.StatusNotFound, map[string]string{
-			"error_message": fmt.Sprintf("product (id: '%s') does not exist", resourceNotFoundError.ResourceID),
+			"error_message": fmt.Sprintf("product (id: '%s') does not exist", ctx.Param("productId")),
 		})
 	}
 

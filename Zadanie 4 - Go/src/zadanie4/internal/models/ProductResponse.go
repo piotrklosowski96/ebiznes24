@@ -14,7 +14,7 @@ type ProductResponse struct {
 // FromDatabaseProduct ...
 func FromDatabaseProduct(productDB *repositoryModels.Product) *ProductResponse {
 	return &ProductResponse{
-		ProductID:   productDB.ProductID,
+		ProductID:   productDB.ID.String(),
 		Name:        productDB.Name,
 		Description: productDB.Description,
 	}
