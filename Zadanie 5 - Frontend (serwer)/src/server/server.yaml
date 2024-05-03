@@ -1,0 +1,63 @@
+swagger: "2.0"
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+host: www
+schemes:
+  - https
+paths:
+  /products:
+    post:
+      responses:
+      operationId: createProduct
+    get:
+      responses:
+      operationId: getProduct
+  /products/{productId}:
+    get:
+      responses:
+      parameters:
+        - in: path
+          name: productId
+          type: string
+          format: uuid4
+          required: true
+          description: Product ID
+    patch:
+      responses:
+      parameters:
+        - in: path
+          name: productId
+          type: string
+          format: uuid4
+          required: true
+          description: Product ID
+    delete:
+      responses:
+      parameters:
+        - in: path
+          name: productId
+          type: string
+          format: uuid4
+          required: true
+          description: Product ID
+  /carts:
+    post:
+    get:
+  /carts/{cartId}:
+    patch:
+    delete:
+  /payments:
+    post:
+    get:
+  /payments/{paymentId}:
+    patch:
+    delete:
+
+definitions:
+  CreateProduct:
+    type: object
+    properties:
+
+  ProductResponse:
