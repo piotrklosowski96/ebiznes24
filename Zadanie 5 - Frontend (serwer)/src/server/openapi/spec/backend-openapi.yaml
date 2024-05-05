@@ -1,0 +1,603 @@
+swagger: '2.0'
+
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+
+host: www
+
+schemes:
+  - http
+
+basePath: '/api/v1'
+
+tags:
+  - name: 'products'
+  - name: 'carts'
+  - name: 'payments'
+
+paths:
+  /products:
+    post:
+      tags:
+        - 'products'
+      operationId: 'createProduct'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/ProductCreate'
+      responses:
+        201:
+          description: ''
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - 'products'
+      operationId: 'getProducts'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'query'
+          name: 'offset'
+          required: false
+          type: integer
+          default: 0
+        - in: 'query'
+          name: 'limit'
+          required: false
+          type: integer
+          default: 30
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/ProductResponseArray'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+  /products/{productId}:
+    get:
+      tags:
+        - 'products'
+      operationId: 'getProductById'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: path
+          name: productId
+          type: string
+          format: uuid4
+          required: true
+          description: Product ID
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    patch:
+      tags:
+        - 'products'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'path'
+          name: 'productId'
+          type: 'string'
+          format: 'uuid4'
+          required: true
+          description: 'Product ID'
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/ProductUpdate'
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - 'products'
+      operationId: 'deleteProductById'
+      parameters:
+        - in: path
+          name: productId
+          type: string
+          format: uuid4
+          required: true
+          description: Product ID
+      responses:
+        204:
+          description: ''
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+  /carts:
+    post:
+      tags:
+        - 'carts'
+      operationId: 'createCart'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/CartCreate'
+      responses:
+        201:
+          description: ''
+          schema:
+            $ref: '#/definitions/CartResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - 'carts'
+      operationId: 'getCarts'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'query'
+          name: 'offset'
+          required: false
+          type: integer
+          default: 0
+        - in: 'query'
+          name: 'limit'
+          required: false
+          type: integer
+          default: 30
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/CartResponseArray'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+  /carts/{cartId}:
+    get:
+      tags:
+        - 'carts'
+      operationId: 'getCartById'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: path
+          name: cartId
+          type: string
+          format: uuid4
+          required: true
+          description: Product ID
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/CartResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    patch:
+      tags:
+        - 'carts'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'path'
+          name: 'cartId'
+          type: 'string'
+          format: 'uuid4'
+          required: true
+          description: 'Cart ID'
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/CartUpdate'
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/CartResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - 'carts'
+      operationId: 'deleteCartById'
+      parameters:
+        - in: path
+          name: cartId
+          type: string
+          format: uuid4
+          required: true
+          description: Cart ID
+      responses:
+        204:
+          description: ''
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+  /payments:
+    post:
+      tags:
+        - 'payments'
+      operationId: 'createPayment'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/PaymentCreate'
+      responses:
+        201:
+          description: ''
+          schema:
+            $ref: '#/definitions/PaymentResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - 'payments'
+      operationId: 'getPayments'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'query'
+          name: 'offset'
+          required: false
+          type: integer
+          default: 0
+        - in: 'query'
+          name: 'limit'
+          required: false
+          type: integer
+          default: 30
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/PaymentResponseArray'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+  /payments/{paymentId}:
+    get:
+      tags:
+        - 'payments'
+      operationId: 'getPaymentById'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'path'
+          name: 'paymentId'
+          type: string
+          format: uuid4
+          required: true
+          description: 'Payment ID'
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/PaymentResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    patch:
+      tags:
+        - 'payments'
+      operationId: 'updatePaymentById'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'path'
+          name: 'paymentId'
+          type: string
+          format: uuid4
+          required: true
+          description: 'Payment ID'
+        - in: 'body'
+          name: 'body'
+          required: true
+          schema:
+            $ref: '#/definitions/PaymentUpdate'
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/PaymentResponse'
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - 'payments'
+      operationId: 'deletePaymentById'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'path'
+          name: 'paymentId'
+          type: string
+          format: uuid4
+          required: true
+          description: 'Payment ID'
+      responses:
+        204:
+          description: ''
+        400:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: ''
+          schema:
+            $ref: '#/definitions/Error'
+
+definitions:
+  Error:
+    type: object
+    properties:
+      message:
+        type: string
+  Pagination:
+    type: object
+    properties:
+      count:
+        type: integer
+      offset:
+        type: integer
+      limit:
+        type: integer
+  ProductCreate:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+  ProductUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+        x-nullable: true
+      description:
+        type: string
+        x-nullable: true
+  ProductResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+  ProductResponseArray:
+    allOf:
+      - $ref: '#/definitions/Pagination'
+      - type: object
+        properties:
+          products:
+            type: array
+            items:
+              $ref: '#/definitions/ProductResponse'
+  CartCreate:
+    type: object
+    required:
+      - productIds
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      productIds:
+        type: array
+        items:
+          type: string
+          format: uuid4
+  CartUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+        x-nullable: true
+      description:
+        type: string
+        x-nullable: true
+      productIds:
+        type: array
+        items:
+          type: string
+          format: uuid4
+  CartResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid4
+      name:
+        type: string
+      description:
+        type: string
+      products:
+        type: array
+        items:
+          $ref: '#/definitions/ProductResponse'
+  CartResponseArray:
+    allOf:
+      - $ref: '#/definitions/Pagination'
+      - type: object
+        properties:
+          carts:
+            type: array
+            items:
+              $ref: '#/definitions/CartResponse'
+  PaymentCreate:
+    type: object
+    properties:
+      status:
+        type: string
+  PaymentUpdate:
+    type: object
+    properties:
+      status:
+        type: string
+        x-nullable: true
+  PaymentResponse:
+    type: object
+    required:
+      - id
+      - status
+    properties:
+      id:
+        type: string
+        format: uuid4
+      status:
+        type: string
+  PaymentResponseArray:
+    allOf:
+      - $ref: '#/definitions/Pagination'
+      - type: object
+        properties:
+          payments:
+            type: array
+            items:
+              $ref: '#/definitions/PaymentResponse'
+

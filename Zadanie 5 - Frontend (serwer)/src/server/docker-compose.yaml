@@ -1,0 +1,18 @@
+version: "3.6"
+
+services:
+  mongo:
+    image: "public.ecr.aws/docker/library/mongo:5"
+    environment:
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    expose:
+      - 27017
+    ports:
+      - "27017:27017"
+    networks:
+      - default
+    volumes:
+      - ./mongo_tests_initdb.js:/docker-entrypoint-initdb.d/mongo_tests_initdb.js
+    command: --bind_ip_all --logpath /dev/null
