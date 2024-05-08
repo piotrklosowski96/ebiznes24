@@ -13,8 +13,9 @@ require (
 	github.com/go-openapi/validate v0.24.0
 	github.com/google/uuid v1.6.0
 	github.com/jessevdk/go-flags v1.5.0
+	github.com/rs/cors v1.11.0
 	go.mongodb.org/mongo-driver v1.14.0
-	golang.org/x/net v0.24.0
+	golang.org/x/net v0.21.0
 )
 
 require (

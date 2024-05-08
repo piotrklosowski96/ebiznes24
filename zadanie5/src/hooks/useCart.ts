@@ -1,20 +1,24 @@
-import {useState} from "react";
-import {ProductResponseArray} from "../client";
+import { useState } from "react";
+import { CartResponse, CartsService } from "../client";
+import { Product } from "../models/Product.ts";
 
-export default function useCart() {
-    const [products, setProducts] = useState([])
+type CartFunction = (productId: string) => void;
+type UseCartReturn = [Product[], CartFunction, CartFunction];
 
-    const addProduct = (productId: string) => {
+export default function useCart(cartId: string): UseCartReturn {
+	const [products, setProducts] = useState<Product[]>([])
 
-    }
+	const addProductToCart = (productId: string) => {
+		CartsService.addProductToCart({cartId: cartId, productId: productId}, ).then((response: CartResponse) => {
+			setProducts(response.products as Product[]);
+		})
+	}
 
-    
+	const removeProductFromCart = (productId: string) => {
+		CartsService.deleteProductFromCart({cartId: cartId, productId: productId}).then((response: CartResponse) => {
+			setProducts(response.products as Product[]);
+		})
+	}
 
-
+	return [ products, addProductToCart, removeProductFromCart ]
 }
-
-function addProduct() {}
-
-function removeProduct() {}
-
-function setQuantity() {}

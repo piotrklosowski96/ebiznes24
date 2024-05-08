@@ -4,13 +4,13 @@ import (
 	"context"
 	"log"
 
-	"github.com/go-openapi/loads"
-
 	"Backend/internal/configuration"
 	"Backend/internal/router"
 	"Backend/internal/storage"
 	"Backend/openapi/gen/backend/server"
 	"Backend/openapi/gen/backend/server/operations"
+	"github.com/go-openapi/loads"
+	"github.com/rs/cors"
 )
 
 const servicePort = 8080
@@ -37,6 +37,8 @@ func main() {
 
 	router := router.NewRouter(openapi, storage)
 	router.RegisterRoutes()
+
+	server.SetHandler(cors.AllowAll().Handler(openapi.Serve(nil)))
 
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)

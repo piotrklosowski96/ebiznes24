@@ -1,5 +1,3 @@
-include Makefile.defs
-
 main:
 	$(GO_ENVS) go build -a -installsuffix cgo -mod readonly -ldflags="$(GO_BUILD_DFLAGS)" ./cmd/$(PROJECT_NAME)/main.go
 
@@ -21,8 +19,8 @@ gen-openapi:
 
 .PHONY: gen-openapi-server
 gen-openapi-server:
-	mkdir -p $(OPENAPI_GEN_DIR)
-	go-swagger.exe generate server -t $(OPENAPI_GEN_DIR) -f $(OPENAPI_SPEC_FILE) -s server --exclude-main -A $(PROJECT_CAPITAL_NAME)
+	mkdir -p ./openapi/gen/backend
+	go-swagger.exe generate server -t ./openapi/gen/backend/ -f ./openapi/spec/backend-openapi.yaml -s server --exclude-main -A Backend
 
 .PHONY: swagger
 swagger: gen-openapi

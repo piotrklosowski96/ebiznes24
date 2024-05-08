@@ -11,11 +11,13 @@ import (
 )
 
 const (
-	CreateCartEP       = "CreateCart"
-	GetCartsEP         = "GetCarts"
-	GetCartByIDEP      = "GetCartByID"
-	PatchCartsCartIDEP = "PatchCartsCartID"
-	DeleteCartByIDEP   = "DeleteCartByID"
+	CreateCartEP            = "CreateCart"
+	GetCartsEP              = "GetCarts"
+	GetCartByIDEP           = "GetCartByID"
+	PatchCartsCartIDEP      = "PatchCartsCartID"
+	DeleteCartByIDEP        = "DeleteCartByID"
+	AddProductToCartEP      = "AddProductToCart"
+	DeleteProductFromCartEP = "DeleteProductFromCart"
 )
 
 // CartsAPI ...
@@ -161,12 +163,66 @@ func (api *CartsAPI) DeleteCartByID(params carts.DeleteCartByIDParams) middlewar
 	defer session.Close(ctx)
 
 	cartId := params.CartID.String()
-	deletePaymentErr := session.DeletePayment(ctx, cartId)
-	if deletePaymentErr != nil {
-		return carts.NewDeleteCartByIDInternalServerError().WithPayload(
-			&models.Error{Message: deletePaymentErr.Error()},
+	deleteCartErr := session.DeleteCart(ctx, cartId)
+	if deleteCartErr != nil {
+		return carts.NewCreateCartInternalServerError().WithPayload(
+			&models.Error{Message: deleteCartErr.Error()},
 		)
 	}
 
 	return carts.NewDeleteCartByIDNoContent()
+}
+
+// AddProductToCart ...
+func (api *CartsAPI) AddProductToCart(params carts.AddProductToCartParams) middleware.Responder {
+	functionName := AddProductToCartEP
+	ctx := params.HTTPRequest.Context()
+
+	session := api.database.Open(functionName)
+	startSessionErr := session.StartSession()
+	if startSessionErr != nil {
+		return carts.NewAddProductToCartInternalServerError().WithPayload(
+			&models.Error{Message: startSessionErr.Error()},
+		)
+	}
+
+	defer session.Close(ctx)
+
+	cartId := params.CartID.String()
+	productId := params.ProductID.String()
+	updatedCart, addProductToCartErr := session.AddProductToCart(ctx, cartId, productId)
+	if addProductToCartErr != nil {
+		return carts.NewAddProductToCartInternalServerError().WithPayload(
+			&models.Error{Message: addProductToCartErr.Error()},
+		)
+	}
+
+	return carts.NewAddProductToCartOK().WithPayload(updatedCart.ToAPIModel())
+}
+
+// DeleteProductFromCart ...
+func (api *CartsAPI) DeleteProductFromCart(params carts.DeleteProductFromCartParams) middleware.Responder {
+	functionName := DeleteProductFromCartEP
+	ctx := params.HTTPRequest.Context()
+
+	session := api.database.Open(functionName)
+	startSessionErr := session.StartSession()
+	if startSessionErr != nil {
+		return carts.NewDeleteProductFromCartInternalServerError().WithPayload(
+			&models.Error{Message: startSessionErr.Error()},
+		)
+	}
+
+	defer session.Close(ctx)
+
+	cartId := params.CartID.String()
+	productId := params.ProductID.String()
+	updatedCart, removeProductFromCartErr := session.RemoveProductFromCart(ctx, cartId, productId)
+	if removeProductFromCartErr != nil {
+		return carts.NewDeleteProductFromCartInternalServerError().WithPayload(
+			&models.Error{Message: removeProductFromCartErr.Error()},
+		)
+	}
+
+	return carts.NewDeleteProductFromCartOK().WithPayload(updatedCart.ToAPIModel())
 }

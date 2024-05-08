@@ -45,6 +45,8 @@ func (router *Router) RegisterRoutes() {
 	router.swaggerAPI.CartsGetCartByIDHandler = carts.GetCartByIDHandlerFunc(router.cartsApi.GetCartByID)
 	router.swaggerAPI.CartsPatchCartsCartIDHandler = carts.PatchCartsCartIDHandlerFunc(router.cartsApi.PatchCartsCartID)
 	router.swaggerAPI.CartsDeleteCartByIDHandler = carts.DeleteCartByIDHandlerFunc(router.cartsApi.DeleteCartByID)
+	router.swaggerAPI.CartsAddProductToCartHandler = carts.AddProductToCartHandlerFunc(router.cartsApi.AddProductToCart)
+	router.swaggerAPI.CartsDeleteProductFromCartHandler = carts.DeleteProductFromCartHandlerFunc(router.cartsApi.DeleteProductFromCart)
 
 	router.swaggerAPI.PaymentsCreatePaymentHandler = payments.CreatePaymentHandlerFunc(router.paymentsApi.CreatePayment)
 	router.swaggerAPI.PaymentsGetPaymentsHandler = payments.GetPaymentsHandlerFunc(router.paymentsApi.GetPayments)

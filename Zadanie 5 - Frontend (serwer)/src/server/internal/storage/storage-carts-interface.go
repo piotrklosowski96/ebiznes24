@@ -13,4 +13,6 @@ type ISessionCartsStorage interface {
 	GetCarts(ctx context.Context, cartsFilter *carts.CartsFilter) ([]*carts.Cart, error)
 	UpdateCart(ctx context.Context, cartId string, cartUpdateDocument *carts.CartUpdate) (*carts.Cart, error)
 	DeleteCart(ctx context.Context, cartId string) error
+	AddProductToCart(ctx context.Context, cartId string, productId string) (*carts.Cart, error)
+	RemoveProductFromCart(ctx context.Context, cartId string, productId string) (*carts.Cart, error)
 }
