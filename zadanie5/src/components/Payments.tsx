@@ -1,7 +1,12 @@
 import usePayment from "../hooks/usePayment.ts";
+import { useEffect } from "react";
 
 export default function Payments() {
-	const [ payments, createNewPayment ] = usePayment();
+	const [ payments, getPayments, createNewPayment ] = usePayment();
+
+	useEffect(() => {
+		getPayments()
+	}, [])
 
 	return (
 		<div>

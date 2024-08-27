@@ -27,21 +27,18 @@ export const ApplicationContext = createContext<IContext>({})
 
 function App() {
 	const cartId = useRef('');
+	const [products, setProducts] = useState<IProduct[]>([]);
+	const [cartProducts, addProductToCart, removeProductFromCart] = useCart(cartId.current);
 
 	useEffect(() => {
 		CartsService.createCart({body: {productIds: []} as CartCreate}).then((response: CreateCartResponse) => {
 			cartId.current = (response as ICart).id!;
 		})
-	}, []);
 
-	const [products, setProducts] = useState<IProduct[]>([]);
-	const [cartProducts, addProductToCart, removeProductFromCart] = useCart(cartId.current);
-
-	useEffect(() => {
 		ProductsService.getProducts().then((response: ProductResponseArray) => {
 			setProducts(response.products as IProduct[]);
 		})
-	}, [])
+	}, []);
 
 	return (
 		<>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PaymentResponse, PaymentsService } from "../client";
 
-type UsePaymentReturn = [Payment[], () => void]
+type UsePaymentReturn = [Payment[], () => void, () => void]
 
 export default function usePayment(): UsePaymentReturn {
 	const [payments, setPayments] = useState<Payment[]>([]);
@@ -19,5 +19,21 @@ export default function usePayment(): UsePaymentReturn {
 		})
 	}
 
-	return [ payments, createNewPayment ]
+	const getPayments = () => {
+		PaymentsService.getPayments({
+			limit: 1000,
+			offset: 0,
+		}).then(paymentsResponse => {
+			const payments = paymentsResponse.payments?.map(p => {
+				return {
+					id: p.id,
+					status: p.status,
+				} as Payment
+			}) || []
+
+			setPayments(payments)
+		})
+	}
+
+	return [ payments, getPayments, createNewPayment ]
 }
