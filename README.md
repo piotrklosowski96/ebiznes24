@@ -110,15 +110,15 @@ Cypress JS (JS)
 Selenium (Kotlin, Python, Java, JS, Go, Scala)
 Testy mają w sumie zawierać minimum 50 asercji (3.5). Mają również uruchamiać się na platformie Browserstack (5.0). Proszę pamiętać o stworzeniu darmowego konta via https://education.github.com/pack.
 
-3.0 Należy stworzyć 20 przypadków testowych w CypressJS lub Selenium (Kotlin, Python, Java, JS, Go, Scala)
+:x: 3.0 Należy stworzyć 20 przypadków testowych w CypressJS lub Selenium (Kotlin, Python, Java, JS, Go, Scala)
 
-3.5 Należy rozszerzyć testy funkcjonalne, aby zawierały minimum 50 asercji
+:x: 3.5 Należy rozszerzyć testy funkcjonalne, aby zawierały minimum 50 asercji
 
 :white_check_mark: 4.0 Należy stworzyć testy jednostkowe do wybranego wcześniejszego projektu z minimum 50 asercjami
 
 :white_check_mark: 4.5 Należy dodać testy API, należy pokryć wszystkie endpointy z minimum jednym scenariuszem negatywnym per endpoint
 
-5.0 Należy uruchomić testy funkcjonalne na Browserstacku
+:x: 5.0 Należy uruchomić testy funkcjonalne na Browserstacku
 
 Demo: [Klik](https://gitlab.com/piotr.klosowski96/wpz-2024v2/-/tree/main/demos/zadanie6?ref_type=heads)
 
@@ -136,7 +136,7 @@ Należy dodać projekt aplikacji klienckiej oraz serwerowej (jeden branch, dwa r
 
 :white_check_mark: 4.5 Należy wyeliminować wszystkie podatności oraz błędy bezpieczeństwa w kodzie w Sonarze (kod aplikacji serwerowej)
 
-5.0 Należy wyeliminować wszystkie błędy oraz zapaszki w kodzie aplikacji klienckiej
+:x: 5.0 Należy wyeliminować wszystkie błędy oraz zapaszki w kodzie aplikacji klienckiej
 
 * https://golangci-lint.run/
 * https://github.com/pinterest/ktlint
@@ -176,13 +176,13 @@ Dla studentów, którzy nie chcą lub nie mogą korzystać z GPT, zamiast GPT na
 
 :white_check_mark: 3.0 należy stworzyć po stronie serwerowej osobny serwis do łącznia z chatGPT do usługi chat
 
-3.5 należy stworzyć interfejs frontowy dla użytkownika, który komunikuje się z serwisem; odpowiedzi powinny być wysyałen do frontendowego interfejsu
+:x: 3.5 należy stworzyć interfejs frontowy dla użytkownika, który komunikuje się z serwisem; odpowiedzi powinny być wysyałen do frontendowego interfejsu
 
-4.0 stworzyć listę 5 różnych otwarć oraz zamknięć rozmowy
+:x: 4.0 stworzyć listę 5 różnych otwarć oraz zamknięć rozmowy
 
-4.5 filtrowanie po zagadnieniach związanych ze sklepem (np. ograniczenie się jedynie do ubrań oraz samego sklepu) do GPT
+:x: 4.5 filtrowanie po zagadnieniach związanych ze sklepem (np. ograniczenie się jedynie do ubrań oraz samego sklepu) do GPT
 
-5.0 filtrowanie odpowiedzi po sentymencie
+:x: 5.0 filtrowanie odpowiedzi po sentymencie
 
 Demo: [Klik](https://gitlab.com/piotr.klosowski96/wpz-2024v2/-/tree/main/demos/zadanie9?ref_type=heads)
 
