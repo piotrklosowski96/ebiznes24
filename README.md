@@ -115,7 +115,8 @@ Demo: [Klik](https://github.com/piotrklosowski96/ebiznes24/tree/master/Zadanie%2
 
 ---
 
-# Wszystkie rzeczy związane z backendem od tego momentu były realizowane w ramach jednego projektu i są na Gitlabie.
+# Wszystkie rzeczy związane z backendem od tego momentu były realizowane w ramach jednego projektu na **Gitlabie**.
+# Wszystkie zadania od tego momentu są realizowane na **jednym** froncie
 
 Do zrealizowania miałem jeszcze projekt w ramach jednego kursy i czasowo nie było dla mnie innej opcji.
 
