@@ -121,7 +121,7 @@ Demo: [Klik](https://github.com/piotrklosowski96/ebiznes24/tree/master/Zadanie%2
 Do zrealizowania miałem jeszcze projekt w ramach jednego kursy i czasowo nie było dla mnie innej opcji.
 
 Linki:<br>
-* [Frontend](https://github.com/piotrklosowski96/pai)
+* [Frontend](https://gitlab.com/piotr.klosowski96/pai)
 * [Backend](https://gitlab.com/piotr.klosowski96/wpz-2024v2/-/tree/822d1189cd156583b7be43735ceb651e6b5d3539)
 
 **Zadanie 6 - Testy**
